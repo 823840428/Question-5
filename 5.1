@@ -1,0 +1,61 @@
+import pandas as pd
+
+L = 5
+colors = [[12, 13], [12, 13]] # first color
+penalty = 0
+penalties = [penalty, penalty]
+grids = [[[0 for i in range(L)] for j in range(L)] for k in range(len(colors))]
+
+def cal(grid, i, j, color):
+    penalty = 0
+    if i==0:
+        if j==0: penalty = 0
+        else:
+            if grid[i][j-1]==color: penalty = -1
+            else: penalty = 0
+    else:
+        if j==0:
+            if grid[i-1][j]==color: penalty = -1
+            else: penalty = 0
+        else:
+            if grid[i-1][j]==color: penalty -= 1
+            if grid[i][j-1]==color: penalty -= 1
+    return penalty
+
+# k, grids[k]
+for i in range(L):
+    for j in range(L):
+        if i==0 and j==0:
+            grids[0][i][j] = 'R'
+            penalties[0] += 0
+            colors[0][0] -= 1
+
+            grids[1][i][j] = 'B'
+            penalties[1] += 0
+            colors[1][1] -= 1
+            continue
+        for k in range(len(grids)):
+            if colors[k][0]>0 and colors[k][1]>0:
+                p1 = cal(grids[k], i, j, 'R')
+                p2 = cal(grids[k], i, j, 'B')
+                if p1>=p2:
+                    colors[k][0] -= 1
+                    grids[k][i][j]='R'
+                    penalties[k] += p1
+                else:
+                    colors[k][1] -= 1
+                    grids[k][i][j]='B'
+                    penalties[k] += p2
+            elif colors[k][0] > colors[k][1]:
+                colors[k][0] -= 1
+                grids[k][i][j] = 'R'
+                penalties[k] += cal(grids[k], i, j, 'R')
+            else:
+                colors[k][1] -= 1
+                grids[k][i][j] = 'B'
+                penalties[k] += cal(grids[k], i, j, 'B')
+penalty = max(penalties)# least of two conditions
+index = penalties.index(penalty)
+grid = grids[index]
+ans = pd.DataFrame(grid)
+ans.to_csv('./output_question_5_1', index=None, header=None, sep = ' ')
